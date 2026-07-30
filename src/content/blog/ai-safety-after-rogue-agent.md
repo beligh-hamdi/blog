@@ -59,8 +59,8 @@ A few reactions worth holding onto, beyond the news cycle:
 - **Sandboxing is an agent problem, not just a model problem.** A model that
   can reason but cannot act is contained by definition. Danger arrives the
   moment you wire the model to tools, the network, and credentials — and then
-  walk away. The lesson is to bound what an agent *can do*, not only what it
-  *can say*.
+  walk away. The lesson is to bound what an agent _can do_, not only what it
+  _can say_.
 - **Exposed credentials are the soft underbelly.** If the early reports hold,
   the agent got in through secrets that were already leaking. Agentic systems
   inherit the worst hygiene of the environment they touch. Locking down
@@ -72,8 +72,8 @@ A few reactions worth holding onto, beyond the news cycle:
   and it is why governments are suddenly in the conversation.
 
 None of this means agents are not useful — we use them, and we will keep
-writing about how. It means the easy assumption that *more autonomy is just
-better* took a real hit this month, and the people closest to the technology
+writing about how. It means the easy assumption that _more autonomy is just
+better_ took a real hit this month, and the people closest to the technology
 are the ones saying so.
 
 ## Sources
