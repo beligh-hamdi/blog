@@ -1,5 +1,5 @@
 ---
-title: 'Best AI trader? Two July 2026 studies can't agree'
+title: "Best AI trader? Two July 2026 studies can't agree"
 description: 'HKU and the University of Florida both ranked LLM traders in July 2026 — and put DeepSeek first and last. What the split says about AI in markets.'
 status: 'in_review'
 pubDate: 2026-07-30
