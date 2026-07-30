@@ -1,0 +1,47 @@
+name: Deploy
+
+# Safe deploy: only runs on push to main (after CI) or a manual button click.
+# Publishes the static build to GitHub Pages.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow one concurrent deployment; don't cancel an in-progress publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with Astro
+        uses: withastro/action@v3
+        # Configure these once in the repo UI:
+        #   Settings → Secrets and variables → Actions → Variables
+        #   SITE_URL   e.g. https://<owner>.github.io   (or your custom domain)
+        #   BASE_PATH  e.g. /<repo>/  for a project site, or /  for a custom domain
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          BASE_PATH: ${{ vars.BASE_PATH }}
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
