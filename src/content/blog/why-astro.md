@@ -1,6 +1,7 @@
 ---
 title: 'Why we build on Astro'
 description: 'The reasoning behind our content stack: fast, SEO-first, and maintainable by a small team.'
+status: 'published'
 pubDate: 2026-07-29
 author: 'beligh'
 tags: ['engineering', 'seo']

@@ -1,6 +1,7 @@
 ---
 title: 'Hello, world'
 description: 'The first post on the beligh blog — and a tour of the publishing pipeline that got it here.'
+status: 'published'
 pubDate: 2026-07-29
 author: 'beligh'
 tags: ['announcement', 'engineering']

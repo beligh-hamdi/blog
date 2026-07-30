@@ -2,10 +2,11 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { filterPublished } from '../../lib/posts';
 
-// Statically generate one page per non-draft post at build time.
+// Statically generate one page per published post at build time.
 export const getStaticPaths = (async () => {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const posts = filterPublished(await getCollection('blog'));
   return posts.map((post) => ({
     params: { slug: post.id },
     props: post,

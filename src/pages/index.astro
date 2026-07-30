@@ -2,9 +2,10 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { filterPublished } from '../lib/posts';
 
 // Newest 5 published posts on the home page.
-const posts = (await getCollection('blog', ({ data }) => !data.draft))
+const posts = filterPublished(await getCollection('blog'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 5);
 
