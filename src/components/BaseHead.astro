@@ -36,16 +36,18 @@ const canonicalURL = canonicalURLOverride
   : new URL(Astro.url.pathname, Astro.site);
 const socialImage = image ? new URL(image, Astro.site) : undefined;
 
+const modifiedDate = modifiedTime ?? publishedTime;
 const structuredData =
   type === 'article'
     ? {
         '@context': 'https://schema.org',
-        '@type': 'Article',
+        '@type': 'BlogPosting',
         headline: title,
         description,
+        url: canonicalURL.href,
         ...(socialImage ? { image: socialImage.href } : {}),
         ...(publishedTime ? { datePublished: publishedTime.toISOString() } : {}),
-        ...(modifiedTime ? { dateModified: modifiedTime.toISOString() } : {}),
+        ...(modifiedDate ? { dateModified: modifiedDate.toISOString() } : {}),
         ...(author ? { author: { '@type': 'Person', name: author } } : {}),
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalURL.href },
       }
@@ -61,6 +63,9 @@ const structuredData =
 <!-- Canonical -->
 <link rel="canonical" href={canonicalURL} />
 
+<!-- Sitemap -->
+<link rel="sitemap" type="application/xml" href={new URL('sitemap-index.xml', Astro.site)} />
+
 <!-- RSS autodiscovery -->
 <link
   rel="alternate"
@@ -73,6 +78,8 @@ const structuredData =
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+{author && <meta name="author" content={author} />}
+<meta name="theme-color" content="#2563eb" />
 
 <!-- OpenGraph -->
 <meta property="og:type" content={type} />
@@ -93,5 +100,16 @@ const structuredData =
 {
   structuredData && (
     <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+  )
+}
+
+<!-- Privacy-friendly analytics (GoatCounter) — enabled only when configured. -->
+{
+  process.env.GOATCOUNTER_CODE && (
+    <script
+      data-goatcounter={`https://${process.env.GOATCOUNTER_CODE}.goatcounter.com/count`}
+      async
+      src="//gc.zgo.at/count.js"
+    />
   )
 }

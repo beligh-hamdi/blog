@@ -57,9 +57,10 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
         <img
           class="hero"
           src={heroImage}
-          alt={heroImageAlt ?? ''}
-          loading="lazy"
+          alt={heroImageAlt ?? title}
+          loading="eager"
           decoding="async"
+          fetchpriority="high"
           width={heroImageWidth}
           height={heroImageHeight}
         />
