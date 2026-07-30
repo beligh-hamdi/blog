@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../../consts';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
+---
+
+<BaseLayout title={`Blog · ${SITE_TITLE}`} description="All posts from beligh.">
+  <h1>Blog</h1>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+          <time datetime={post.data.pubDate.toISOString()}>
+            {dateFmt.format(post.data.pubDate)}
+          </time>
+          <p>{post.data.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>

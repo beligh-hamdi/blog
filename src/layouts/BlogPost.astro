@@ -1,0 +1,56 @@
+---
+// Layout for a single blog post. Renders the article with semantic markup and
+// forwards SEO/structured-data props (Article schema) to BaseLayout.
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, author, heroImage, tags } = Astro.props;
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  image={heroImage}
+  publishedTime={pubDate}
+  modifiedTime={updatedDate}
+  author={author}
+>
+  <article>
+    <h1>{title}</h1>
+    <p class="post-meta">
+      <span>By {author}</span>
+      <span>·</span>
+      <time datetime={pubDate.toISOString()}>{dateFmt.format(pubDate)}</time>
+      {
+        updatedDate && (
+          <>
+            <span>·</span>
+            <span>Updated {dateFmt.format(updatedDate)}</span>
+          </>
+        )
+      }
+    </p>
+    {heroImage && <img class="hero" src={heroImage} alt="" />}
+    {
+      tags.length > 0 && (
+        <ul class="tags">
+          {tags.map((tag) => (
+            <li>#{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

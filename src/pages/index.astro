@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+// Newest 5 published posts on the home page.
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
+---
+
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <section class="hero-intro">
+    <h1>{SITE_TITLE}</h1>
+    <p>{SITE_DESCRIPTION}</p>
+  </section>
+
+  <section>
+    <h2>Latest posts</h2>
+    <ul class="post-list">
+      {
+        posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            <time datetime={post.data.pubDate.toISOString()}>
+              {dateFmt.format(post.data.pubDate)}
+            </time>
+          </li>
+        ))
+      }
+    </ul>
+    <p><a href="/blog">View all posts →</a></p>
+  </section>
+</BaseLayout>

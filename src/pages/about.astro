@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<BaseLayout title={`About · ${SITE_TITLE}`} description="About beligh — Content for Blogs.">
+  <article class="prose">
+    <h1>About</h1>
+    <p>
+      {SITE_TITLE} produces and publishes high-quality blog content at scale. This site is the public
+      home for that content, built on a fast, SEO-friendly static publishing pipeline.
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+// Shared HTML shell for every page. Semantic landmarks (header/main/footer)
+// and a single global stylesheet keep markup clean and Core Web Vitals fast
+// (no client JS shipped by default).
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  type?: 'website' | 'article';
+  image?: string;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  author?: string;
+}
+
+const props = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {...props} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>&copy; {year} {SITE_TITLE}. Built with Astro.</p>
+    </footer>
+  </body>
+</html>
