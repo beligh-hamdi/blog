@@ -16,5 +16,11 @@ const BASE_PATH = process.env.BASE_PATH ?? '/';
 export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // The /admin/* routes are internal editorial tooling (drafts, calendar).
+      // Never expose them to crawlers.
+      filter: (page) => !page.includes('/admin/'),
+    }),
+  ],
 });

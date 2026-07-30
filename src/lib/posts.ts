@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
+import { STATUS_ORDER, type PostStatus } from './workflow';
 
-export type PostStatus = 'draft' | 'in_review' | 'published' | 'scheduled';
+export type { PostStatus } from './workflow';
 
 /**
  * Determine whether a post should appear on the public (production) site.
@@ -28,17 +29,38 @@ export function filterPublished(
 }
 
 /**
- * Group posts by their editorial status.
+ * Group posts by their editorial status. Returns an ordered map (draft →
+ * in_review → scheduled → published) for editorial-calendar display.
  */
-export function groupByStatus(posts: CollectionEntry<'blog'>[]) {
-  const groups: Record<PostStatus, CollectionEntry<'blog'>[]> = {
+export function groupByStatus(
+  posts: CollectionEntry<'blog'>[],
+): Record<PostStatus, CollectionEntry<'blog'>[]> {
+  const groups = {
     draft: [],
     in_review: [],
     published: [],
     scheduled: [],
-  };
+  } as Record<PostStatus, CollectionEntry<'blog'>[]>;
   for (const post of posts) {
     groups[post.data.status].push(post);
+  }
+  return groups;
+}
+
+/**
+ * Editorial calendar: every post grouped by status, each group sorted by
+ * publish date (soonest-first within `scheduled`, most-recent-first within
+ * the other groups). Used by the internal /admin/calendar view.
+ */
+export function editorialCalendar(
+  posts: CollectionEntry<'blog'>[],
+): Record<PostStatus, CollectionEntry<'blog'>[]> {
+  const groups = groupByStatus(posts);
+  for (const status of STATUS_ORDER) {
+    groups[status].sort((a, b) => {
+      const dir = status === 'scheduled' ? 1 : -1; // upcoming first, else recent first
+      return dir * (a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+    });
   }
   return groups;
 }

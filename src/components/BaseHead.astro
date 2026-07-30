@@ -8,6 +8,9 @@ interface Props {
   description: string;
   type?: 'website' | 'article';
   image?: string;
+  // Explicit canonical URL. When provided (e.g. for cross-posted content) it
+  // overrides the URL generated from the current pathname.
+  canonicalURL?: string;
   // Article-only structured data.
   publishedTime?: Date;
   modifiedTime?: Date;
@@ -19,14 +22,18 @@ const {
   description,
   type = 'website',
   image,
+  canonicalURL: canonicalURLOverride,
   publishedTime,
   modifiedTime,
   author,
 } = Astro.props;
 
 // Astro.site is set from `site` in astro.config.mjs. Build absolute URLs so
-// crawlers and social scrapers get fully-qualified links.
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+// crawlers and social scrapers get fully-qualified links. Honor an explicit
+// canonical override from the post front-matter when present.
+const canonicalURL = canonicalURLOverride
+  ? new URL(canonicalURLOverride)
+  : new URL(Astro.url.pathname, Astro.site);
 const socialImage = image ? new URL(image, Astro.site) : undefined;
 
 const structuredData =
