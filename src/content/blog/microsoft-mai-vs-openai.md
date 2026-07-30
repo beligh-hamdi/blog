@@ -1,6 +1,6 @@
 ---
 title: "Microsoft's MAI Bet: Why the Copilot Maker Is Now Competing With Its Own Partners"
-description: "Satya Nadella is urging enterprises to avoid vendor lock-in by using multiple models. Behind that advice is a strategy that puts Microsoft directly against OpenAI and Anthropic."
+description: 'Satya Nadella is urging enterprises to avoid vendor lock-in by using multiple models. Behind that advice is a strategy that puts Microsoft directly against OpenAI and Anthropic.'
 status: 'published'
 pubDate: 2026-07-29
 author: 'beligh'
@@ -20,7 +20,7 @@ Microsoft recently reported **$331.8 billion in annual revenue**, with AI as a c
 - **Maya AI chips** — custom silicon designed to reduce reliance on Nvidia and improve inference economics.
 - **Copilot agents** — autonomous tools that orchestrate across models, not just wrap a single one.
 
-The Hugging Face breach in July 2026 gave Microsoft a concrete proof point: enterprises that depend on a single frontier provider are exposed to that provider's safety incidents. Nadella's response is to make Microsoft's stack the *abstraction layer* above all of them.
+The Hugging Face breach in July 2026 gave Microsoft a concrete proof point: enterprises that depend on a single frontier provider are exposed to that provider's safety incidents. Nadella's response is to make Microsoft's stack the _abstraction layer_ above all of them.
 
 ## What "model independence" actually means
 
