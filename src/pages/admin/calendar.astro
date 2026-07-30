@@ -1,0 +1,104 @@
+---
+// Internal editorial calendar. Lists EVERY post grouped by editorial status
+// and publish date, and flags machine-checkable workflow violations.
+//
+// Drafts/review posts are NEVER exposed to the public site. To guarantee that,
+// this page only renders the full calendar in development (`npm run dev`). In a
+// production build it renders an inert stub, so no unpublished content ever
+// ships to dist/ — even though the route itself exists.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../../consts';
+import { editorialCalendar } from '../../lib/posts';
+import { STATUS_ORDER, workflowViolations, isDue, type PostStatus } from '../../lib/workflow';
+
+const isDev = import.meta.env.DEV;
+
+const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
+const statusLabel: Record<PostStatus, string> = {
+  draft: 'Drafts',
+  in_review: 'In review',
+  scheduled: 'Scheduled',
+  published: 'Published',
+};
+
+const posts = isDev ? await getCollection('blog') : [];
+const calendar = isDev ? editorialCalendar(posts) : null;
+const violations = isDev ? posts.flatMap((p) => workflowViolations(p)) : [];
+const due = isDev ? posts.filter((p) => isDue(p)).map((p) => p.data.slug ?? p.id) : [];
+---
+
+<BaseLayout title={`Editorial calendar · ${SITE_TITLE}`} description="Internal editorial calendar.">
+  <h1>Editorial calendar</h1>
+  {
+    !isDev ? (
+      <p>
+        The editorial calendar is an internal, development-only tool. Run
+        <code>npm run dev</code> and open <code>/admin/calendar</code> to view and triage every post
+        by workflow state.
+      </p>
+    ) : (
+      <>
+        {(violations.length > 0 || due.length > 0) && (
+          <section class="calendar-alerts">
+            <h2>Needs attention</h2>
+            {due.length > 0 && (
+              <p>
+                <strong>{due.length}</strong> scheduled post(s) are now due to be promoted to{' '}
+                <code>published</code>: {due.map((s) => <code>{s}</code>).join(', ')}.
+              </p>
+            )}
+            {violations.length > 0 && (
+              <ul>
+                {violations.map((v) => (
+                  <li>
+                    <code>{v.slug}</code> — {v.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+        {STATUS_ORDER.map((status) => (
+          <section class={`calendar-group group-${status}`}>
+            <h2>
+              {statusLabel[status]} <span class="count">{calendar![status].length}</span>
+            </h2>
+            {calendar![status].length === 0 ? (
+              <p class="empty">No posts.</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Slug</th>
+                    <th>Title</th>
+                    <th>Publish date</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendar![status].map((post) => (
+                    <tr>
+                      <td>
+                        <code>{post.data.slug ?? post.id}</code>
+                      </td>
+                      <td>{post.data.title}</td>
+                      <td>
+                        <time datetime={post.data.pubDate.toISOString()}>
+                          {dateFmt.format(post.data.pubDate)}
+                        </time>
+                      </td>
+                      <td>{post.data.author}</td>
+                      <td>{post.data.category ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        ))}
+      </>
+    )
+  }
+</BaseLayout>

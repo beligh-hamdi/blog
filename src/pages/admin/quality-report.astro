@@ -1,0 +1,249 @@
+---
+// Build-time content-quality dashboard.
+// Generates a static HTML report the CEO (or any editor) can open and read.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../../consts';
+import { generateReport } from '../../lib/quality';
+
+const posts = await getCollection('blog');
+const report = generateReport(
+  posts.map((p) => ({
+    id: p.id,
+    filePath: p.filePath,
+    data: p.data,
+    body: p.body ?? '',
+  })),
+);
+
+const s = report.summary;
+
+const typeLabel: Record<string, string> = {
+  missing_description: 'Missing meta description',
+  missing_hero: 'Missing cover image',
+  missing_hero_alt: 'Missing cover alt text',
+  thin_content: 'Thin content',
+  body_image_missing_alt: 'Body image missing alt',
+  broken_internal_link: 'Broken internal link',
+  broken_external_link: 'Broken external link',
+};
+
+const typeIcon: Record<string, string> = {
+  missing_description: '📝',
+  missing_hero: '🖼️',
+  missing_hero_alt: '🖼️',
+  thin_content: '📏',
+  body_image_missing_alt: '🖼️',
+  broken_internal_link: '🔗',
+  broken_external_link: '🔗',
+};
+---
+
+<BaseLayout
+  title={`Quality Report · Admin · ${SITE_TITLE}`}
+  description="Content-quality dashboard for beligh."
+>
+  <h1>Content Quality Report</h1>
+
+  <div class="summary-cards">
+    <div class="card">
+      <strong>{s.totalPosts}</strong>
+      <span>Total posts</span>
+    </div>
+    <div class={`card ${s.postsWithErrors > 0 ? 'error' : ''}`}>
+      <strong>{s.postsWithErrors}</strong>
+      <span>Posts with errors</span>
+    </div>
+    <div class={`card ${s.postsWithWarnings > 0 ? 'warning' : ''}`}>
+      <strong>{s.postsWithWarnings}</strong>
+      <span>Posts with warnings</span>
+    </div>
+    <div class="card">
+      <strong>{s.totalErrors}</strong>
+      <span>Total errors</span>
+    </div>
+    <div class="card">
+      <strong>{s.totalWarnings}</strong>
+      <span>Total warnings</span>
+    </div>
+  </div>
+
+  <h2>Issue breakdown</h2>
+  <ul class="breakdown">
+    {
+      Object.entries(s.issueBreakdown)
+        .filter(([, count]: [string, number]) => count > 0)
+        .sort((a: [string, number], b: [string, number]) => b[1] - a[1])
+        .map(([type, count]: [string, number]) => (
+          <li>
+            {typeIcon[type] ?? '•'} {typeLabel[type] ?? type}: <strong>{count}</strong>
+          </li>
+        ))
+    }
+    {Object.values(s.issueBreakdown).every((c: number) => c === 0) && <li>✅ No issues found.</li>}
+  </ul>
+
+  <h2>Per-post report</h2>
+  <table class="post-table">
+    <thead>
+      <tr>
+        <th>Post</th>
+        <th>Status</th>
+        <th>Words</th>
+        <th>Errors</th>
+        <th>Warnings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        report.posts.map(
+          (post: {
+            slug: string;
+            title: string;
+            status: string;
+            wordCount: number;
+            errors: number;
+            warnings: number;
+          }) => (
+            <tr
+              class={post.errors > 0 ? 'row-error' : post.warnings > 0 ? 'row-warning' : 'row-ok'}
+            >
+              <td>
+                <a href={`/blog/${post.slug}/`}>{post.title}</a>
+                <br />
+                <small>{post.slug}</small>
+              </td>
+              <td>{post.status}</td>
+              <td>{post.wordCount}</td>
+              <td>{post.errors}</td>
+              <td>{post.warnings}</td>
+            </tr>
+          ),
+        )
+      }
+    </tbody>
+  </table>
+
+  {
+    report.posts
+      .filter((p: { issues: unknown[] }) => p.issues.length > 0)
+      .map(
+        (post: {
+          title: string;
+          status: string;
+          issues: { severity: string; message: string; details?: string }[];
+        }) => (
+          <section class="post-details">
+            <h3>
+              {post.title}
+              <span class="badge">{post.status}</span>
+            </h3>
+            <ul>
+              {post.issues.map((issue: { severity: string; message: string; details?: string }) => (
+                <li class={issue.severity}>
+                  <span class="severity">
+                    {issue.severity === 'error' ? '❌ Error' : '⚠️ Warning'}
+                  </span>
+                  {issue.message}
+                  {issue.details && <span class="details"> — {issue.details}</span>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ),
+      )
+  }
+
+  <style>
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .card strong {
+      display: block;
+      font-size: 1.5rem;
+    }
+    .card.error {
+      border-color: #e74c3c;
+      background: #fdf2f2;
+    }
+    .card.warning {
+      border-color: #f39c12;
+      background: #fff9f0;
+    }
+    .breakdown {
+      list-style: none;
+      padding: 0;
+      columns: 2;
+    }
+    .breakdown li {
+      margin-bottom: 0.5rem;
+    }
+    .post-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    .post-table th,
+    .post-table td {
+      border: 1px solid #ddd;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .post-table th {
+      background: #f8f8f8;
+    }
+    .row-error {
+      background: #fdf2f2;
+    }
+    .row-warning {
+      background: #fff9f0;
+    }
+    .row-ok {
+      background: #f2fdf4;
+    }
+    .post-details {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .post-details h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: normal;
+      background: #eee;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+    .post-details ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+    .post-details li {
+      margin-bottom: 0.35rem;
+    }
+    .severity {
+      display: inline-block;
+      min-width: 6rem;
+      font-weight: 600;
+    }
+    .details {
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</BaseLayout>

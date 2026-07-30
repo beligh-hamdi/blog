@@ -29,5 +29,8 @@ jobs:
       - name: Lint (prettier + astro check)
         run: npm run lint
 
+      - name: Content quality checks
+        run: npm run quality-check
+
       - name: Build
         run: npm run build

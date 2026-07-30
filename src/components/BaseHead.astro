@@ -107,6 +107,7 @@ const structuredData =
 {
   process.env.GOATCOUNTER_CODE && (
     <script
+      is:inline
       data-goatcounter={`https://${process.env.GOATCOUNTER_CODE}.goatcounter.com/count`}
       async
       src="//gc.zgo.at/count.js"
