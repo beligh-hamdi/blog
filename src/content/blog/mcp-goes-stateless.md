@@ -1,16 +1,12 @@
 ---
 title: 'MCP goes stateless: what the 2026-07-28 spec changes'
 description: "The Model Context Protocol's fifth release moves to a stateless core, adds Apps and Tasks, and hardens OAuth. Here's what builders should know."
-status: 'in_review'
+status: 'published'
 pubDate: 2026-07-30
 author: 'beligh'
 category: 'dev'
 tags: ['mcp', 'ai', 'tooling', 'agents']
 ---
-
-> This post is **in review**. It is excluded from the public build until an
-> editor moves it to `published`. Track it on the editorial calendar
-> (`npm run dev` → `/admin/calendar`).
 
 The Model Context Protocol — the spec for wiring AI models to tools and data
 sources — shipped its fifth release on July 28, 2026, and the headline change

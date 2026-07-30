@@ -1,16 +1,12 @@
 ---
 title: 'Web frameworks in 2026: server-rendered and agent-ready'
 description: 'Topcoat, Remix 3, and Guren all shipped in July 2026. Their shared bet: server rendering, web standards, and AI agents as a design constraint.'
-status: 'in_review'
+status: 'published'
 pubDate: 2026-07-30
 author: 'beligh'
 category: 'dev'
 tags: ['web', 'frameworks', 'rust', 'react', 'ai', 'tooling']
 ---
-
-> This post is **in review**. It is excluded from the public build until an
-> editor moves it to `published`. Track it on the editorial calendar
-> (`npm run dev` → `/admin/calendar`).
 
 July 2026 produced an unusually tight cluster of full-stack web framework
 releases across three language ecosystems: Topcoat in Rust, Remix 3 in
