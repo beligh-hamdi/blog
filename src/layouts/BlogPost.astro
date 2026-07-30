@@ -3,6 +3,7 @@
 // forwards SEO/structured-data props (Article schema) to BaseLayout.
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
+import { withBase } from '../lib/path';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -71,7 +72,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
         <ul class="tags">
           {tags.map((tag) => (
             <li>
-              <a href={`/blog/tag/${tag}/`}>#{tag}</a>
+              <a href={withBase(`/tag/${tag}/`)}>#{tag}</a>
             </li>
           ))}
         </ul>

@@ -12,6 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE } from '../consts';
 import { editorialCalendar } from '../lib/posts';
 import { STATUS_ORDER, workflowViolations, isDue, type PostStatus } from '../lib/workflow';
+import { withBase } from '../lib/path';
 
 const isDev = import.meta.env.DEV;
 
@@ -101,7 +102,7 @@ const statusMeta: Record<PostStatus, { label: string; description: string }> = {
                 <ul class="post-list">
                   {posts.map((post) => (
                     <li>
-                      <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                      <a href={withBase(`/${post.id}/`)}>{post.data.title}</a>
                       <time datetime={post.data.pubDate.toISOString()}>
                         {dateFmt.format(post.data.pubDate)}
                       </time>

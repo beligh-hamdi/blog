@@ -1,10 +1,13 @@
 ---
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
-import BlogPost from '../../layouts/BlogPost.astro';
-import { filterPublished } from '../../lib/posts';
+import BlogPost from '../layouts/BlogPost.astro';
+import { filterPublished } from '../lib/posts';
 
 // Statically generate one page per published post at build time.
+// Route lives at the site root so that, combined with the Astro `base`, a post
+// deploys to `<base>/<slug>/` (e.g. /blog/hello-world/) rather than a doubled
+// /blog/blog/<slug>/ path.
 export const getStaticPaths = (async () => {
   const posts = filterPublished(await getCollection('blog'));
   return posts.map((post) => ({

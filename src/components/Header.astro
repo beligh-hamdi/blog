@@ -1,15 +1,16 @@
 ---
 import { SITE_TITLE } from '../consts';
+import { withBase } from '../lib/path';
 ---
 
 <header class="site-header">
   <nav>
-    <a class="brand" href="/">{SITE_TITLE}</a>
+    <a class="brand" href={withBase('/')}>{SITE_TITLE}</a>
     <ul>
-      <li><a href="/blog">Blog</a></li>
-      <li><a href="/editorial">Editorial</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/rss.xml">RSS</a></li>
+      <li><a href={withBase('/posts')}>Blog</a></li>
+      <li><a href={withBase('/editorial')}>Editorial</a></li>
+      <li><a href={withBase('/about')}>About</a></li>
+      <li><a href={withBase('/rss.xml')}>RSS</a></li>
     </ul>
   </nav>
 </header>

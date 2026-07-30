@@ -2,6 +2,7 @@ import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { filterPublished } from '../lib/posts';
+import { withBase } from '../lib/path';
 
 // RSS/Atom feed for the blog. `context.site` comes from `site` in the config.
 export async function GET(context) {
@@ -17,7 +18,7 @@ export async function GET(context) {
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.pubDate,
-      link: `/blog/${post.id}/`,
+      link: withBase(`/${post.id}/`),
     })),
   });
 }

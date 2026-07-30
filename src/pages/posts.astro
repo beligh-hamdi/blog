@@ -1,9 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { SITE_TITLE } from '../../consts';
-import { filterPublished } from '../../lib/posts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../consts';
+import { filterPublished } from '../lib/posts';
+import { withBase } from '../lib/path';
 
+// Full post archive. Route at root -> deploys to <base>/posts/.
 const posts = filterPublished(await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
@@ -17,7 +19,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
     {
       posts.map((post) => (
         <li>
-          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+          <a href={withBase(`/${post.id}/`)}>{post.data.title}</a>
           <time datetime={post.data.pubDate.toISOString()}>
             {dateFmt.format(post.data.pubDate)}
           </time>

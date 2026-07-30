@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { filterPublished } from '../lib/posts';
+import { withBase } from '../lib/path';
 
 // Newest 5 published posts on the home page.
 const posts = filterPublished(await getCollection('blog'))
@@ -24,7 +25,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
       {
         posts.map((post) => (
           <li>
-            <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            <a href={withBase(`/${post.id}/`)}>{post.data.title}</a>
             <time datetime={post.data.pubDate.toISOString()}>
               {dateFmt.format(post.data.pubDate)}
             </time>
@@ -32,6 +33,6 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
         ))
       }
     </ul>
-    <p><a href="/blog">View all posts →</a></p>
+    <p><a href={withBase('/posts')}>View all posts →</a></p>
   </section>
 </BaseLayout>
