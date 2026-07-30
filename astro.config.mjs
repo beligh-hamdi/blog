@@ -18,9 +18,9 @@ export default defineConfig({
   base: BASE_PATH,
   integrations: [
     sitemap({
-      // The /admin/* routes are internal editorial tooling (drafts, calendar).
-      // Never expose them to crawlers.
-      filter: (page) => !page.includes('/admin/'),
+      // The /editorial route is internal editorial tooling (drafts, calendar).
+      // Never expose it to crawlers.
+      filter: (page) => !page.includes('/editorial'),
     }),
   ],
 });

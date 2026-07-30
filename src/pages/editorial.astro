@@ -1,34 +1,45 @@
 ---
+// Internal editorial calendar: every post in the system, grouped by workflow
+// status, with machine-checkable workflow violations flagged.
+//
+// Drafts and in-review posts are NEVER exposed to the public site. To guarantee
+// that, this page only renders the full calendar in development (`npm run dev`).
+// In a production build it renders an inert stub, so no unpublished content ever
+// ships to dist/ — even though the route itself exists. The route is also
+// excluded from the sitemap and robots.txt.
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE } from '../consts';
-import { groupByStatus } from '../lib/posts';
+import { editorialCalendar } from '../lib/posts';
+import { STATUS_ORDER, workflowViolations, isDue, type PostStatus } from '../lib/workflow';
 
-// Editorial calendar: every post in the system, grouped by workflow status.
-const allPosts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
-const byStatus = groupByStatus(allPosts);
+const isDev = import.meta.env.DEV;
+
+const allPosts = isDev ? await getCollection('blog') : [];
+const byStatus = isDev ? editorialCalendar(allPosts) : null;
+const violations = isDev ? allPosts.flatMap((p) => workflowViolations(p)) : [];
+const due = isDev ? allPosts.filter((p) => isDue(p)).map((p) => p.data.slug ?? p.id) : [];
+const total = isDev ? allPosts.length : 0;
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
 
-// Status labels and descriptions for the editorial UI.
-const statusMeta: Record<string, { label: string; description: string }> = {
-  published: {
-    label: 'Published',
-    description: 'Live on the site and included in feeds.',
-  },
-  scheduled: {
-    label: 'Scheduled',
-    description: 'Will go live on the publish date (requires rebuild).',
+// Status labels and descriptions for the editorial UI (ordered draft → published).
+const statusMeta: Record<PostStatus, { label: string; description: string }> = {
+  draft: {
+    label: 'Draft',
+    description: 'Work in progress — not visible on the public site.',
   },
   in_review: {
     label: 'In Review',
     description: 'Awaiting editorial approval before going live.',
   },
-  draft: {
-    label: 'Draft',
-    description: 'Work in progress — not visible on the public site.',
+  scheduled: {
+    label: 'Scheduled',
+    description: 'Approved; goes live once pubDate passes (then promote to published).',
+  },
+  published: {
+    label: 'Published',
+    description: 'Live on the site and included in feeds.',
   },
 };
 ---
@@ -39,42 +50,74 @@ const statusMeta: Record<string, { label: string; description: string }> = {
 >
   <h1>Editorial Calendar</h1>
 
-  <p class="intro">
-    {allPosts.length} post{allPosts.length === 1 ? '' : 's'} in the pipeline.
-  </p>
-
   {
-    Object.entries(statusMeta).map(([status, meta]) => {
-      const posts = byStatus[status as keyof typeof byStatus];
-      return (
-        <section class="status-group">
-          <h2>
-            {meta.label}
-            <span class="count">({posts.length})</span>
-          </h2>
-          <p class="status-desc">{meta.description}</p>
+    !isDev ? (
+      <p>
+        The editorial calendar is an internal, development-only tool. Run
+        <code>npm run dev</code> and open <code>/editorial</code> to view and triage every post by
+        workflow state. It is excluded from the production build, sitemap, and robots.txt.
+      </p>
+    ) : (
+      <>
+        <p class="intro">
+          {total} post{total === 1 ? '' : 's'} in the pipeline.
+        </p>
 
-          {posts.length === 0 ? (
-            <p class="empty">No posts in this stage.</p>
-          ) : (
-            <ul class="post-list">
-              {posts.map((post) => (
-                <li>
-                  <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-                  <time datetime={post.data.pubDate.toISOString()}>
-                    {dateFmt.format(post.data.pubDate)}
-                  </time>
-                  <span class="author">by {post.data.author}</span>
-                  {post.data.tags.length > 0 && (
-                    <span class="tags">{post.data.tags.join(', ')}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      );
-    })
+        {(violations.length > 0 || due.length > 0) && (
+          <section class="alerts">
+            <h2>Needs attention</h2>
+            {due.length > 0 && (
+              <p>
+                <strong>{due.length}</strong> scheduled post{due.length === 1 ? '' : 's'} due to be
+                promoted to <code>published</code>: {due.map((s) => <code>{s}</code>).join(', ')}.
+              </p>
+            )}
+            {violations.length > 0 && (
+              <ul>
+                {violations.map((v) => (
+                  <li>
+                    <code>{v.slug}</code> — {v.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {STATUS_ORDER.map((status) => {
+          const meta = statusMeta[status];
+          const posts = byStatus![status];
+          return (
+            <section class="status-group">
+              <h2>
+                {meta.label}
+                <span class="count">({posts.length})</span>
+              </h2>
+              <p class="status-desc">{meta.description}</p>
+
+              {posts.length === 0 ? (
+                <p class="empty">No posts in this stage.</p>
+              ) : (
+                <ul class="post-list">
+                  {posts.map((post) => (
+                    <li>
+                      <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                      <time datetime={post.data.pubDate.toISOString()}>
+                        {dateFmt.format(post.data.pubDate)}
+                      </time>
+                      <span class="author">by {post.data.author}</span>
+                      {post.data.tags.length > 0 && (
+                        <span class="tags">{post.data.tags.join(', ')}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </>
+    )
   }
 </BaseLayout>
 
@@ -82,6 +125,16 @@ const statusMeta: Record<string, { label: string; description: string }> = {
   .intro {
     font-size: 1.1rem;
     margin-bottom: 2rem;
+  }
+  .alerts {
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background: var(--bg-alt, #f7f7f8);
+  }
+  .alerts h2 {
+    margin-top: 0;
+    font-size: 1rem;
   }
   .status-group {
     margin-bottom: 2.5rem;

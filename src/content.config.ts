@@ -26,6 +26,9 @@ const blog = defineCollection({
       category: z.string().optional(),
       // Cover/hero image, resolved relative to /public or absolute.
       heroImage: z.string().optional(),
+      heroImageAlt: z.string().optional(),
+      heroImageWidth: z.number().optional(),
+      heroImageHeight: z.number().optional(),
       // Override the generated canonical URL (e.g. for cross-posted content).
       canonicalURL: z.string().url().optional(),
       tags: z.array(z.string()).default([]),

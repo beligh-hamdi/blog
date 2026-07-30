@@ -6,8 +6,19 @@ import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, author, heroImage, tags, canonicalURL } =
-  Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  author,
+  heroImage,
+  heroImageAlt,
+  heroImageWidth,
+  heroImageHeight,
+  tags,
+  canonicalURL,
+} = Astro.props;
 
 const dateFmt = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -41,7 +52,19 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
         )
       }
     </p>
-    {heroImage && <img class="hero" src={heroImage} alt="" loading="lazy" decoding="async" />}
+    {
+      heroImage && (
+        <img
+          class="hero"
+          src={heroImage}
+          alt={heroImageAlt ?? ''}
+          loading="lazy"
+          decoding="async"
+          width={heroImageWidth}
+          height={heroImageHeight}
+        />
+      )
+    }
     {
       tags.length > 0 && (
         <ul class="tags">
